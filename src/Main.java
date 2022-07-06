@@ -4,7 +4,6 @@ import java.util.Scanner;
 import java.util.Date;
 
 public class Main {
-    static String[] arrRooms = new String[10];
     static int[] safeStartDaysArr = new int[100];
     static int[] safeStartMonthsArr = new int[100];
     static int[] safeStartYearsArr = new int[100];
@@ -13,7 +12,16 @@ public class Main {
     static int[] safeEndYearsArr = new int[100];
     static int[] numberOfBedsArr = {1, 1, 1, 1, 2, 2, 2, 2, 3, 3};
     static int roomNumberReserve;
-    static String [] additionalServices = new String [10];
+    static int startDate;
+    static int startMonth;
+    static int startYear;
+
+    static int endDate;
+
+    static int endMonth;
+
+    static int endYear;
+    static String [] additionalServices = new String [100];
 
     public static void printWelcomeMessage() {
         System.out.println("------------------------------------------------------------------------------------------------------");
@@ -49,13 +57,8 @@ public class Main {
         return continueTheProgram;
     }
 
-    public static void makeAnEmptyRoom(String[] arrRooms) {
-        for (int i = 0; i < arrRooms.length; i++) {
-            arrRooms[i] = "empty";
-        }
-    }
 
-    public static void checkForEmptyRooms(String[] arrRooms) throws ParseException {
+    public static void checkForEmptyRooms() throws ParseException {
         System.out.println("===========================================");
         System.out.println("      CHECK FOR CURRENTLY FREE ROOMS");
         System.out.println("===========================================");
@@ -79,7 +82,7 @@ public class Main {
         }
     }
 
-    public static void makeAReservation(String[] arrRooms) throws ParseException {
+    public static void makeAReservation() throws ParseException {
         System.out.println("=========================================");
         System.out.println("           MAKE A RESERVATION");
         System.out.println("=========================================");
@@ -91,34 +94,113 @@ public class Main {
             System.out.println("INVALID INPUT! THERE ISN'T A ROOM WITH WHIT NUMBER!");
             System.out.println("Now enter the information again!");
             System.out.println("-----------------------------------------------------");
-            makeAReservation(arrRooms);
+            makeAReservation();
             return;
         }
-        makeAReservationDate(arrRooms);
+        makeAReservationDate();
 
-        arrRooms[roomNumberReserve - 1] = "reserved";
     }
 
-    public static void makeAReservationDate(String[] arrRooms) throws ParseException {
+    public static boolean checkStartDatesForReservationDate(){
+        boolean result = true;
+        if(startMonth<1 || startMonth>12 || startDate<1 || startDate>31){
+            result=false;
+            return false;
+        }
+        if(startMonth==4 || startMonth==6 || startMonth==9 || startMonth==11){
+            if(startDate>=31){
+              return false;
+            }
+        }
+        if(startMonth==2 && startDate>=29) {
+            boolean isLeap = false;
+            if (startYear % 4 == 0) {
+                if (startYear % 100 == 0) {
+                    if (startYear % 400 == 0) {
+                        isLeap = true;
+                    }
+                } else {
+                    isLeap = true;
+                }
+            }
+            if (isLeap == false && startMonth == 2 && startDate > 28) {
+                result = false;
+                return false;
+            }
+        }
+        return result;
+    }
+    public static void enterAndCheckTheStartDatesOfTheReservation(){
         Scanner scan = new Scanner(System.in);
         System.out.println("Please write the start of the reservation! ");
         System.out.print("Enter the start day: ");
-        int startDate = scan.nextInt();
+        startDate = scan.nextInt();
         System.out.print("Enter the month: ");
-        int startMonth = scan.nextInt();
-        if (startMonth < 1 || startMonth > 12) {
-            System.out.print("INVALID MONTH INPUT! Now enter the month again!");
-            startMonth = scan.nextInt();
-        }
+        startMonth = scan.nextInt();
         System.out.print("Enter the year: ");
-        int startYear = scan.nextInt();
+        startYear = scan.nextInt();
+        boolean check = checkStartDatesForReservationDate();
+        while(check==false){
+            System.out.println("--------------------------------");
+            System.out.println("   INVALID START DATE INPUT!");
+            System.out.println("--------------------------------");
+            System.out.println("Now enter the dates again: ");
+            enterAndCheckTheStartDatesOfTheReservation();
+            checkStartDatesForReservationDate();
+            check = checkStartDatesForReservationDate();
+        }
+    }
+    public static void enterAndCheckTheEndDatesOfTheReservation(){
+        Scanner scan = new Scanner(System.in);
         System.out.println("Please write the end of the reservation! ");
         System.out.print("Enter the end day: ");
-        int endDate = scan.nextInt();
+        endDate = scan.nextInt();
         System.out.print("Enter the month: ");
-        int endMonth = scan.nextInt();
+        endMonth = scan.nextInt();
         System.out.print("Enter the year: ");
-        int endYear = scan.nextInt();
+        endYear = scan.nextInt();
+        boolean check = checkEndDatesForReservationDate();
+        while(check==false){
+            System.out.println("--------------------------------");
+            System.out.println("   INVALID END DATE INPUT!");
+            System.out.println("--------------------------------");
+            System.out.println("Now enter the dates again: ");
+            enterAndCheckTheEndDatesOfTheReservation();
+            checkEndDatesForReservationDate();
+            check = checkEndDatesForReservationDate();
+        }
+    }
+    public static boolean checkEndDatesForReservationDate(){
+        boolean result = true;
+        if(endMonth<1 || endMonth>12 || endDate<1 || endDate>31){
+            result=false;
+            return false;
+        }
+        if(endMonth==4 || endMonth==6 || endMonth==9 || endMonth==11){
+            if(endDate>=31){
+                return false;
+            }
+        }
+        boolean isLeap = false;
+        if (endYear % 4 == 0) {
+            if (endYear % 100 == 0) {
+                if (endYear % 400 == 0) {
+                    isLeap = true;
+                }
+            } else {
+                isLeap = true;
+            }
+        }
+        if(isLeap==false && endMonth==2 && endDate>28){
+            result=false;
+            return false;
+        }
+        return result;
+    }
+    public static void makeAReservationDate() throws ParseException {
+        Scanner scan = new Scanner(System.in);
+        enterAndCheckTheStartDatesOfTheReservation();
+        enterAndCheckTheEndDatesOfTheReservation();
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         Date d1 = format.parse(startDate + "/" + startMonth + "/" + startYear);
         Date d2 = format.parse(endDate + "/" + endMonth + "/" + endYear);
@@ -131,10 +213,11 @@ public class Main {
                     continue1 = true;
                 } else {
                     System.out.println("================================================");
-                    System.out.println("  INVALID DATE INPUT!");
+                    System.out.println("             INVALID DATE INPUT!");
                     System.out.println("This room is already reserved on this dates!");
                     System.out.println("================================================");
-                    continue1 = false; break;
+                    continue1 = false;
+                    makeAReservationDate();
                 }
             }
         }
@@ -144,7 +227,7 @@ public class Main {
                 System.out.println("    INVALID DATE INPUT!");
                 System.out.println("----------------------------");
                 System.out.println("Now enter the dates again: ");
-                makeAReservationDate(arrRooms);
+                makeAReservationDate();
             } else {
                 boolean execute = false;
                 for (int i = -1; i < 90; i += 10) {
@@ -163,13 +246,12 @@ public class Main {
                 System.out.println("The end day is: " + endDate + "/" + endMonth + "/" + endYear + "   12:00h.");
                 System.out.println("Enter some information about the user: ");
                 String information = scan.nextLine();
-                information = scan.nextLine();
                 System.out.println("Room No:" + roomNumberReserve + " is successfully reserved");
             }
         }
     }
 
-    public static void cancelAReservation(String[] arrRooms) {
+    public static void cancelAReservation() {
         System.out.println("=============================================");
         System.out.println("           CANCEL A RESERVATION");
         System.out.println("=============================================");
@@ -208,7 +290,7 @@ public class Main {
         }
     }
 
-    public static void printStats(int[] safeStartDaysArr) throws ParseException {
+    public static void printStats() throws ParseException {
         System.out.println("=============================================");
         System.out.println("                  STATS                      ");
         System.out.println("=============================================");
@@ -371,13 +453,10 @@ public class Main {
         }
     }
 
-
-
-    public static void updateARoom () throws ParseException {
+    public static void printTheSelectionsForUpdateARoom() {
         System.out.println("=========================================");
         System.out.println("             UPDATE A ROOM");
         System.out.println("=========================================");
-        Scanner scan = new Scanner(System.in);
         System.out.println("THESE ARE THE ADDITIONAL SERVICES OFFERED BY OUR HOTEL");
         System.out.println("1. Baby cot");
         System.out.println("2. With breakfast");
@@ -385,44 +464,49 @@ public class Main {
         System.out.println("4. Overlooking the sea");
         System.out.println("5. Overlooking the mountain");
         System.out.println("6. Overlooking the courtyard");
-        System.out.print("Please, enter your choice here-> ");
+    }
+    public static void askTheUserIfWantToAddAnAnotherAdditionalService(byte addChoice) throws ParseException {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Do you want to add an another additional service to your reservation?");
+        System.out.print("Enter 'true' for 'yes' and false for 'no': ");
+        boolean addAnotherService = scan.nextBoolean();
+        if(addAnotherService==true){
+            System.out.print("Please, enter your extra choice(1-6): -> ");
+            byte addAnotherChoice = scan.nextByte();
+            if((addChoice==2 && addAnotherChoice==3) || (addChoice==3 && addAnotherChoice==2)){
+                System.out.print("Invalid input! You cannot have reservation with breakfast and with three-meal courses at the same time!");
+                askIfTheUserWantsToContinue();
+            } else if((addChoice==4 && addAnotherChoice==5) || (addChoice==5 && addAnotherChoice==4) || (addChoice==4 && addAnotherChoice==6) || (addChoice==6 && addAnotherChoice==4) || (addChoice==5 && addAnotherChoice==6) && (addChoice==6 && addAnotherChoice==5)){
+                System.out.println("Invalid input! You can't have a room with many views!");
+            } else{
+
+            }
+            askTheUserIfWantToAddAnAnotherAdditionalService(addChoice);
+        }
+    }
+    public static void updateARoom () throws ParseException {
+        Scanner scan = new Scanner(System.in);
+        printTheSelectionsForUpdateARoom();
+        System.out.print("Please, enter your choice here(1-6) -> ");
         byte addChoice = scan.nextByte();
         switch (addChoice){
             case 1 -> {
                 System.out.println("YOU CHOSE -> BABY COT");
-                System.out.println("Now you can make the reservation");
-                makeAReservation(arrRooms);
-                additionalServices[roomNumberReserve-1] = "baby cot";
             }
             case 2 ->{
                 System.out.println("YOU CHOSE -> RESERVATION WITH BREAKFAST");
-                System.out.println("Now you can make the reservation");
-                makeAReservation(arrRooms);
-                additionalServices[roomNumberReserve-1] = "with breakfast";
             }
             case 3 ->{
                 System.out.println("YOU CHOSE -> RESERVATION WITH THREE-MEAL COURSES");
-                System.out.println("Now you can make the reservation");
-                makeAReservation(arrRooms);
-                additionalServices[roomNumberReserve-1] = "with three meal courses";
             }
             case 4 ->{
-                System.out.println("YOU CHOSE -> RESERVATION OVERLOOKING THE SEA");
-                System.out.println("Now you can make the reservation");
-                makeAReservation(arrRooms);
-                additionalServices[roomNumberReserve-1] = "overlooking the sea";
+                System.out.println("YOU CHOSE -> OVERLOOKING THE SEA");
             }
             case 5 ->{
                 System.out.println("YOU CHOSE -> RESERVATION OVERLOOKING THE MOUNTAIN");
-                System.out.println("Now you can make the reservation");
-                makeAReservation(arrRooms);
-                additionalServices[roomNumberReserve-1] = "overlooking the mountain";
             }
             case 6 ->{
                 System.out.println("YOU CHOSE -> RESERVATION OVERLOOKING THE COURTYARD");
-                System.out.println("Now you can make the reservation");
-                makeAReservation(arrRooms);
-                additionalServices[roomNumberReserve-1] = "overlooking the courtyard";
             }
             default -> {
                 System.out.println("INVALID INPUT!");
@@ -430,22 +514,29 @@ public class Main {
                 updateARoom();
             }
         }
+        askTheUserIfWantToAddAnAnotherAdditionalService(addChoice);
+        System.out.println("Now you can make the reservation");
+        makeAReservation();
+        for(int i=roomNumberReserve+90; i>=roomNumberReserve; i--){
+            if(safeStartDaysArr[i]!=0){
+                additionalServices[i] += addChoice ;
+            }
+        }
     }
 
     public static void main(String[] args) throws ParseException {
         Scanner scan = new Scanner(System.in);
         printWelcomeMessage();
-        makeAnEmptyRoom(arrRooms);
         boolean askIfTheUserWantsToContinue;
         do {
             printTheSections();
             System.out.print("Enter your selection here: ");
             int selection = scan.nextInt();
             switch (selection) {
-                case 1 -> makeAReservation(arrRooms);
-                case 2 -> checkForEmptyRooms(arrRooms);
-                case 3 -> cancelAReservation(arrRooms);
-                case 4 -> printStats(safeStartDaysArr);
+                case 1 -> makeAReservation();
+                case 2 -> checkForEmptyRooms();
+                case 3 -> cancelAReservation();
+                case 4 -> printStats();
                 case 5 -> findARoom();
                 case 6 -> updateARoom();
                 default -> {
