@@ -15,11 +15,8 @@ public class Main {
     static int startDate;
     static int startMonth;
     static int startYear;
-
     static int endDate;
-
     static int endMonth;
-
     static int endYear;
     static String [] additionalServices = new String [100];
 
@@ -44,7 +41,6 @@ public class Main {
         System.out.println("6. Update a room.");
         System.out.println("------------------------------------------------------------------------------------------------------");
     }
-
     public static boolean askIfTheUserWantsToContinue() {
         Scanner scan = new Scanner(System.in);
         System.out.print("Do you want to continue the program(true or false)? ");
@@ -56,8 +52,6 @@ public class Main {
         }
         return continueTheProgram;
     }
-
-
     public static void checkForEmptyRooms() throws ParseException {
         System.out.println("===========================================");
         System.out.println("      CHECK FOR CURRENTLY FREE ROOMS");
@@ -81,7 +75,6 @@ public class Main {
             }
         }
     }
-
     public static void makeAReservation() throws ParseException {
         System.out.println("=========================================");
         System.out.println("           MAKE A RESERVATION");
@@ -99,7 +92,6 @@ public class Main {
         }
         makeAReservationDate();
     }
-
     public static boolean checkStartDatesForReservationDate(){
         boolean result = true;
         if(startMonth<1 || startMonth>12 || startDate<1 || startDate>31){
@@ -216,6 +208,7 @@ public class Main {
                     System.out.println("This room is already reserved on this dates!");
                     System.out.println("================================================");
                     continue1 = false;
+                    break;
                 }
             }
         }
@@ -228,7 +221,7 @@ public class Main {
                 makeAReservationDate();
             } else {
                 for (int i = -1; i < 90; i += 10) {
-                    if (safeStartDaysArr[roomNumberReserve+i]==0) {
+                    if (safeStartDaysArr[roomNumberReserve+i]==0 || safeStartDaysArr[roomNumberReserve+i]==-1) {
                         safeStartDaysArr[roomNumberReserve + i] = startDate;
                         safeStartMonthsArr[roomNumberReserve + i] = startMonth;
                         safeStartYearsArr[roomNumberReserve + i] = startYear;
@@ -246,7 +239,6 @@ public class Main {
             }
         }
     }
-
     public static void cancelAReservation() {
         System.out.println("=============================================");
         System.out.println("           CANCEL A RESERVATION");
@@ -259,23 +251,34 @@ public class Main {
             System.out.println("Now enter the number again!");
             roomNumberCancel = scan.nextInt();
         }
+        findAndPrintTheReservationForCancelAReservation(roomNumberCancel);
+    }
+    public static void findAndPrintTheReservationForCancelAReservation(int roomNumberCancel){
+        Scanner scan = new Scanner(System.in);
         System.out.println("These are the reservations for this rooms: ");
-        int br = 1;
         int i = (roomNumberCancel - 1);
-        if (safeStartDaysArr[i] != 0) {
-            while (safeStartDaysArr[i] != 0 && i < safeStartDaysArr.length) {
-                System.out.println("Reservation No: " + br + "  ----->   from: " + safeStartDaysArr[i] + "/" + safeStartMonthsArr[i] + "/" + safeStartYearsArr[i] + "   to: " + safeEndDaysArr[i] + "/" + safeEndMonthsArr[i] + "/" + safeEndYearsArr[i]);
-                br++;
+        boolean reservation = false;
+        for(i=(roomNumberCancel-1); i< safeStartDaysArr.length; i+=10){
+            if(safeStartDaysArr[i]!=0 && safeStartDaysArr[i]!=-1){
+                reservation=true;
+                break;
+            }
+        }
+        if (reservation) {
+            while (i < safeStartDaysArr.length) {
+                if(safeStartDaysArr[i]!=0 && safeStartDaysArr[i]!=-1) {
+                    System.out.println("Reservation No: " + i + "  ----->   from: " + safeStartDaysArr[i] + "/" + safeStartMonthsArr[i] + "/" + safeStartYearsArr[i] + "   to: " + safeEndDaysArr[i] + "/" + safeEndMonthsArr[i] + "/" + safeEndYearsArr[i]);
+                }
                 i += 10;
             }
             System.out.print("Please write the reservation number you want to cancel: ");
             int numberOfReservation = scan.nextInt();
-            safeStartDaysArr[i - 10] = 0;
-            safeStartMonthsArr[i - 10] = 0;
-            safeStartYearsArr[i - 10] = 0;
-            safeEndDaysArr[i - 10] = 0;
-            safeEndMonthsArr[i - 10] = 0;
-            safeEndYearsArr[i - 10] = 0;
+            safeStartDaysArr[numberOfReservation] = -1;
+            safeStartMonthsArr[numberOfReservation] = -1;
+            safeStartYearsArr[numberOfReservation] = -1;
+            safeEndDaysArr[numberOfReservation] = -1;
+            safeEndMonthsArr[numberOfReservation] = -1;
+            safeEndYearsArr[numberOfReservation] = -1;
             System.out.println();
             System.out.println("THE RESERVATION IS SUCCESSFULLY CANCELED!");
             System.out.println();
@@ -285,7 +288,6 @@ public class Main {
             System.out.println("-----------------------------------------------");
         }
     }
-
     public static void printStats() throws ParseException {
         System.out.println("=============================================");
         System.out.println("                  STATS                      ");
@@ -348,9 +350,9 @@ public class Main {
                 }
             }
         }
-        printTheNumberOfUsedDaysFotEachRoom(arrDiffDays);
+        printTheNumberOfUsedDaysForEachRoom(arrDiffDays);
     }
-    public static void printTheNumberOfUsedDaysFotEachRoom(int [] arrDiffDays){
+    public static void printTheNumberOfUsedDaysForEachRoom(int [] arrDiffDays){
         int sumDays = 0;
         for(int i=0; i<10; i++){
             for(int j=i; j<100; j+=10){
@@ -360,37 +362,57 @@ public class Main {
             sumDays=0;
         }
     }
-
     public static void findARoom() throws ParseException {
         System.out.println("===========================================");
         System.out.println("               FIND A ROOM");
         System.out.println("===========================================");
         Scanner scan = new Scanner(System.in);
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         System.out.print("Enter the number of beds(1-3): ");
         byte beds = scan.nextByte();
         System.out.print("Enter start date: ");
-        int startDate = scan.nextInt();
+        int startDateCheck = scan.nextInt();
         System.out.print("Enter the start month: ");
-        int startMonth = scan.nextInt();
+        int startMonthCheck = scan.nextInt();
         System.out.print("Enter the start year: ");
-        int startYear = scan.nextInt();
+        int startYearCheck = scan.nextInt();
         System.out.print("Enter the end day: ");
-        int endDate = scan.nextInt();
+        int endDateCheck = scan.nextInt();
         System.out.print("Enter the end month: ");
-        int endMonth = scan.nextInt();
+        int endMonthCheck = scan.nextInt();
         System.out.print("Enter the end year: ");
-        int endYear = scan.nextInt();
+        int endYearCheck = scan.nextInt();
+        int[] arr = new int[100];
+        System.out.println("--------------------------------");
+        System.out.println("AVAILABLE ROOMS WITH " + beds + " BED/S");
+        System.out.println("--------------------------------");
+        checkTheDatesForFindARoom(beds, arr, startDateCheck, startMonthCheck, startYearCheck, endDateCheck, endMonthCheck, endYearCheck);
+        printFoundRooms(beds, arr);
+    }
+    public static void printFoundRooms(int beds, int arr[]){
+        boolean isRoomReserved = false;
+        for(int i=0; i<10; i++) {
+            if (beds == numberOfBedsArr[i]) {
+                isRoomReserved = false;
+                for (int j = i; j < arr.length; j += 10) {
+                    if (arr[j] != 1) {
+                        isRoomReserved = true;
+                        break;
+                    }
+                }
+                if (isRoomReserved == false) {
+                    System.out.println("Room No: " + (i+1));
+                }
+            }
+        }
+    }
+    public static void checkTheDatesForFindARoom(int beds, int arr[], int startDateCheck, int startMonthCheck,int startYearCheck, int endDateCheck, int endMonthCheck, int endYearCheck) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         Date d1 = null;
         Date d2 = null;
         Date d1Check = null;
         Date d2Check = null;
         long diff = 0;
         long diffDays = 0;
-        int[] arr = new int[100];
-        System.out.println("--------------------------------");
-        System.out.println("AVAILABLE ROOMS WITH " + beds + " BED/S");
-        System.out.println("--------------------------------");
         for (int i = 0; i < 10; i++) {
             if (beds == numberOfBedsArr[i]) {
                 for (int j = i; j < 100; j += 10) {
@@ -399,8 +421,8 @@ public class Main {
                     } else {
                         d1 = format.parse(safeStartDaysArr[j] + "/" + safeStartMonthsArr[j] + "/" + safeStartYearsArr[j]);
                         d2 = format.parse(safeEndDaysArr[j] + "/" + safeEndMonthsArr[j] + "/" + safeEndYearsArr[j]);
-                        d1Check = format.parse(startDate + "/" + startMonth + "/" + startYear);
-                        d2Check = format.parse(endDate + "/" + endMonth + "/" + endYear);
+                        d1Check = format.parse(startDateCheck + "/" + startMonthCheck + "/" + startYearCheck);
+                        d2Check = format.parse(endDateCheck + "/" + endMonthCheck + "/" + endYearCheck);
                         if (d1Check.compareTo(d1) <= 0 && d2Check.compareTo(d2) >= 0) {
                             diff = d2.getTime() - d1.getTime();
                             diffDays = diff / (24 * 60 * 60 * 1000);
@@ -430,26 +452,7 @@ public class Main {
                 }
             }
         }
-        printFoundRooms(beds, arr);
     }
-    public static void printFoundRooms(int beds, int arr[]){
-        boolean isRoomReserved = false;
-        for(int i=0; i<10; i++) {
-            if (beds == numberOfBedsArr[i]) {
-                isRoomReserved = false;
-                for (int j = i; j < arr.length; j += 10) {
-                    if (arr[j] != 1) {
-                        isRoomReserved = true;
-                        break;
-                    }
-                }
-                if (isRoomReserved == false) {
-                    System.out.println("Room No: " + (i+1));
-                }
-            }
-        }
-    }
-
     public static void printTheSelectionsForUpdateARoom() {
         System.out.println("=========================================");
         System.out.println("             UPDATE A ROOM");
@@ -568,7 +571,6 @@ public class Main {
             }
         }
     }
-
     public static void makeAReservationOverlookingTheCourtyard() throws ParseException {
         Scanner scan = new Scanner(System.in);
         System.out.println("*********************************************");
